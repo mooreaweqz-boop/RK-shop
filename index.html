@@ -107,6 +107,54 @@
             </div>
         </div>
 
+        <!-- Admin Modal -->
+        <div id="adminModal" class="hidden fixed inset-0 z-[70] flex items-end justify-center bg-black/85 p-4">
+            <div class="bg-[#050505] border border-red-500/40 rounded-3xl w-full max-w-md p-5 max-h-[90vh] overflow-y-auto no-scrollbar">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-white">แผงแอดมิน</h2>
+                    <button onclick="closeAdmin()" class="text-white text-2xl"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <div class="bg-[#111] border border-red-900/50 rounded-2xl p-4 mb-4 text-center">
+                    <p class="text-xs text-gray-400 mb-1">ยอดคงเหลือปัจจุบัน</p>
+                    <p class="text-3xl font-bold text-white"><span id="admin-balance-display">0</span> ฿</p>
+                </div>
+
+                <label class="text-sm text-gray-400">ปรับยอดคงเหลือ (บาท)</label>
+                <input type="number" id="admin-amount-input" placeholder="เช่น 100 หรือ -50" class="w-full bg-[#111] border border-red-900/50 rounded-xl py-2.5 px-3 my-2 text-white focus:outline-none focus:ring-1 focus:ring-red-500">
+
+                <div class="grid grid-cols-2 gap-3 mt-2">
+                    <button onclick="adminAdjustBalance(1)" class="bg-green-700 py-2.5 rounded-xl text-white">➕ เพิ่มยอด</button>
+                    <button onclick="adminAdjustBalance(-1)" class="bg-red-700 py-2.5 rounded-xl text-white">➖ ลดยอด</button>
+                </div>
+                <button onclick="adminSetBalance()" class="w-full mt-2 bg-[#222] border border-red-900/50 py-2.5 rounded-xl text-white">ตั้งยอดเท่ากับค่านี้เลย</button>
+
+                <hr class="border-red-900/40 my-5">
+
+                <h3 class="text-white font-semibold mb-2">เติมสต็อกสินค้า</h3>
+                <p class="text-xs text-gray-400 mb-2">พิมพ์รหัส/ข้อความที่จะให้ลูกค้าเห็นตอนสั่งซื้อ บรรทัดละ 1 รายการ ระบบจะสุ่มแจกทีละรายการแบบไม่ซ้ำ</p>
+
+                <label class="text-sm text-gray-400">เลือกแพ็กเกจ</label>
+                <select id="admin-stock-package" class="w-full bg-[#111] border border-red-900/50 rounded-xl py-2.5 px-3 my-2 text-white focus:outline-none focus:ring-1 focus:ring-red-500">
+                    <option value="1">1 วัน</option>
+                    <option value="3">3 วัน</option>
+                    <option value="7">7 วัน</option>
+                    <option value="15">15 วัน</option>
+                    <option value="30">30 วัน</option>
+                </select>
+
+                <textarea id="admin-stock-input" rows="4" placeholder="เช่น&#10;user01:pass01&#10;user02:pass02&#10;user03:pass03" class="w-full bg-[#111] border border-red-900/50 rounded-xl py-2.5 px-3 my-2 text-white text-sm focus:outline-none focus:ring-1 focus:ring-red-500"></textarea>
+
+                <button onclick="adminAddStock()" class="w-full bg-green-700 py-2.5 rounded-xl text-white">📦 เพิ่มเข้าสต็อก</button>
+
+                <div id="admin-stock-summary" class="mt-4 space-y-1 text-sm text-gray-300"></div>
+
+                <div class="mt-4 text-xs text-yellow-400/80 bg-yellow-950/30 border border-yellow-800/40 rounded-xl p-3">
+                    ⚠️ หน้านี้กันด้วยรหัสผ่านฝั่งไคลเอนต์เท่านั้น เหมาะสำหรับกันคนทั่วไปกดพลาด แต่ไม่ใช่ระบบความปลอดภัยจริง เพราะคนที่เปิดดูซอร์สโค้ดของหน้านี้จะเห็นรหัสได้ ถ้าจะใช้กับระบบจริงที่มีลูกค้าอื่นด้วย ต้องทำระบบล็อกอิน + ฐานข้อมูลฝั่งเซิร์ฟเวอร์แทน สต็อกก็เก็บในหน่วยความจำหน้าเว็บเช่นกัน รีเฟรชแล้วหาย
+                </div>
+            </div>
+        </div>
+
         <!-- Sidebar -->
         <div id="sidebarMenu" class="hidden fixed inset-0 z-50 bg-black/60" onclick="closeMenu()">
             <div class="w-3/4 max-w-[280px] h-full bg-[#0a0a0a] border-r border-red-900 p-6 transform -translate-x-full transition-transform" id="sidebarContent" onclick="event.stopPropagation()">
@@ -117,6 +165,7 @@
                 <div class="flex flex-col space-y-8">
                     <a href="#" onclick="switchPage('home')">หน้าหลัก</a>
                     <a href="#" onclick="switchPage('topup')">เติมเงิน</a>
+                    <a href="#" onclick="openAdmin()" class="text-red-400">⚙️ แอดมิน</a>
                 </div>
             </div>
         </div>
@@ -139,6 +188,103 @@
         let userBalance = 0;
         function renderBalance() {
             document.getElementById('sidebar-balance').textContent = userBalance.toLocaleString('th-TH');
+            const adminDisplay = document.getElementById('admin-balance-display');
+            if (adminDisplay) adminDisplay.textContent = userBalance.toLocaleString('th-TH');
+        }
+
+        // ---------- admin ----------
+        // เปลี่ยนรหัสผ่านนี้เป็นของคุณเองก่อนใช้งานจริง
+        const ADMIN_PASSWORD = 'rachakao998';
+        let adminUnlocked = false;
+
+        function openAdmin() {
+            closeMenu();
+            if (!adminUnlocked) {
+                const input = prompt('กรอกรหัสผ่านแอดมิน:');
+                if (input === null) return;
+                if (input !== ADMIN_PASSWORD) {
+                    alert('รหัสผ่านไม่ถูกต้อง');
+                    return;
+                }
+                adminUnlocked = true;
+            }
+            renderBalance();
+            renderStockSummary();
+            document.getElementById('adminModal').classList.remove('hidden');
+        }
+        function closeAdmin() {
+            document.getElementById('adminModal').classList.add('hidden');
+        }
+        function adminAdjustBalance(direction) {
+            const val = parseFloat(document.getElementById('admin-amount-input').value);
+            if (isNaN(val) || val <= 0) {
+                alert('กรุณาใส่จำนวนเงินที่มากกว่า 0');
+                return;
+            }
+            userBalance += direction * val;
+            if (userBalance < 0) userBalance = 0;
+            renderBalance();
+            document.getElementById('admin-amount-input').value = '';
+        }
+        function adminSetBalance() {
+            const val = parseFloat(document.getElementById('admin-amount-input').value);
+            if (isNaN(val) || val < 0) {
+                alert('กรุณาใส่จำนวนเงินที่ถูกต้อง');
+                return;
+            }
+            userBalance = val;
+            renderBalance();
+            document.getElementById('admin-amount-input').value = '';
+        }
+
+        // ---------- stock (in-memory, no localStorage) ----------
+        // key = จำนวนวันของแพ็กเกจ, value = array ของรหัส/ข้อความที่จะสุ่มแจก
+        let stock = { 1: [], 3: [], 7: [], 15: [], 30: [] };
+
+        function renderStockSummary() {
+            const box = document.getElementById('admin-stock-summary');
+            if (!box) return;
+            const labels = { 1: '1 วัน', 3: '3 วัน', 7: '7 วัน', 15: '15 วัน', 30: '30 วัน' };
+            box.innerHTML = '<div class="font-semibold text-white mb-1">สต็อกคงเหลือ</div>' +
+                Object.keys(labels).map(days =>
+                    '<div class="flex justify-between"><span>' + labels[days] + '</span><span class="' +
+                    (stock[days].length === 0 ? 'text-red-400' : 'text-green-400') + '">' + stock[days].length + ' รายการ</span></div>'
+                ).join('');
+        }
+
+        function adminAddStock() {
+            const days = document.getElementById('admin-stock-package').value;
+            const raw = document.getElementById('admin-stock-input').value;
+            const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+            if (lines.length === 0) {
+                alert('กรุณาพิมพ์รายการที่จะเติมสต็อกอย่างน้อย 1 บรรทัด');
+                return;
+            }
+
+            let added = 0, skipped = 0;
+            lines.forEach(item => {
+                if (!stock[days].includes(item)) {
+                    stock[days].push(item);
+                    added++;
+                } else {
+                    skipped++;
+                }
+            });
+
+            document.getElementById('admin-stock-input').value = '';
+            renderStockSummary();
+            alert('เพิ่มสต็อกสำเร็จ ' + added + ' รายการ' + (skipped > 0 ? (' (ข้ามรายการซ้ำ ' + skipped + ' รายการ)') : ''));
+        }
+
+        // สุ่มดึง 1 รายการออกจากสต็อกของแพ็กเกจนั้นๆ แบบไม่ซ้ำ (ลบออกจาก pool ทันที)
+        function drawStockItem(days) {
+            const pool = stock[days];
+            if (!pool || pool.length === 0) return null;
+            const idx = Math.floor(Math.random() * pool.length);
+            const item = pool[idx];
+            pool.splice(idx, 1);
+            return item;
         }
 
         // ---------- order flow (in-memory, no localStorage) ----------
@@ -187,7 +333,24 @@
                 '<div class="flex justify-between mb-1"><span>เลขคำสั่งซื้อ</span><span class="font-semibold text-white">#' + currentOrder.orderId + '</span></div>' +
                 '<div class="flex justify-between mb-1"><span>แพ็กเกจ</span><span class="text-white">' + currentOrder.days + ' วัน</span></div>' +
                 '<div class="flex justify-between mb-1"><span>ยอดที่ต้องโอน</span><span class="text-red-400 font-bold">' + currentOrder.price + ' ฿</span></div>' +
-                '<div class="flex justify-between"><span>สถานะ</span><span id="order-status-text" class="text-yellow-400">' + currentOrder.status + '</span></div>';
+                '<div class="flex justify-between"><span>สถานะ</span><span id="order-status-text" class="text-yellow-400">' + currentOrder.status + '</span></div>' +
+                (currentOrder.deliveredCode
+                    ? '<div class="mt-3 bg-green-950/40 border border-green-700/50 rounded-xl p-3"><p class="text-xs text-gray-400 mb-1">สินค้าของคุณ</p><p class="text-white font-mono break-all">' + currentOrder.deliveredCode + '</p></div>'
+                    : (currentOrder.outOfStock
+                        ? '<div class="mt-3 bg-red-950/40 border border-red-700/50 rounded-xl p-3 text-red-300 text-sm">สินค้าแพ็กเกจนี้หมดสต็อกชั่วคราว รอแอดมินเติมสต็อกแล้วจะได้รับสินค้าโดยเร็วที่สุด</div>'
+                        : ''));
+        }
+
+        // สั่งจ่ายสินค้าจากสต็อกให้คำสั่งซื้อปัจจุบันหลังยืนยันการชำระเงินสำเร็จ
+        function deliverStockForCurrentOrder() {
+            if (!currentOrder || currentOrder.deliveredCode) return;
+            const item = drawStockItem(currentOrder.days);
+            if (item) {
+                currentOrder.deliveredCode = item;
+                currentOrder.outOfStock = false;
+            } else {
+                currentOrder.outOfStock = true;
+            }
         }
 
         // ---------- slip upload / verification ----------
@@ -340,6 +503,7 @@
                 currentOrder.status = 'ชำระเงินแล้ว (รอตรวจสอบยอดจริง)';
                 userBalance += currentOrder.price;
                 renderBalance();
+                deliverStockForCurrentOrder();
                 renderOrderSummary();
             }
         }
