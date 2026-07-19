@@ -6,8 +6,8 @@
     <title>REALKAO SHOP</title>
     <!-- เรียกใช้ Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- เรียกใช้ Font Prompt -->
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- เรียกใช้ Font Prompt (ฟอนต์หลัก) และ Itim (ฟอนต์น่ารักๆ สำหรับโลโก้) -->
+    <link href="https://fonts.googleapis.com/css2?family=Itim&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- เรียกใช้ Font Awesome สำหรับ Icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -22,6 +22,11 @@
             min-height: 100vh;
         }
         
+        /* ตั้งค่าฟอนต์น่ารัก */
+        .font-cute {
+            font-family: 'Itim', cursive;
+        }
+
         /* ซ่อน Scrollbar */
         .no-scrollbar::-webkit-scrollbar {
             display: none;
@@ -78,6 +83,7 @@
             background: linear-gradient(to right, transparent, rgba(239, 68, 68, 0.6), transparent);
             transform: skewX(-25deg);
             animation: laserSwipe 3s infinite ease-in-out;
+            z-index: 1; /* ให้แสงเลเซอร์อยู่หลังตัวหนังสือ */
         }
 
         @keyframes pulseGlow {
@@ -123,12 +129,13 @@
             </div>
         </header>
 
-        <!-- 2. Banner หลักด้านบนสุด (ใช้รูปล่าสุดที่คุณส่งมา) -->
+        <!-- 2. Banner หลักด้านบนสุด (เปลี่ยนรูปเป็นข้อความฟอนต์น่ารัก) -->
         <section class="px-4 mt-4">
-            <div class="glow-red-box rounded-2xl bg-black flex justify-center items-center">
-                <img src="https://images.weserv.nl/?url=cdn.discordapp.com/attachments/1528247158069792863/1528400957082177686/static.png" 
-                     alt="REALKAO SHOP Welcome Banner" 
-                     class="w-full h-auto rounded-2xl object-cover block">
+            <div class="glow-red-box rounded-2xl bg-[#0a0000] flex justify-center items-center py-12">
+                <!-- ข้อความ REALKAO SHOP ฟอนต์น่ารัก พร้อมเงาเรืองแสง -->
+                <h1 class="text-4xl md:text-5xl text-red-500 font-cute tracking-widest relative z-10" style="text-shadow: 0 0 15px rgba(239, 68, 68, 0.8), 0 0 5px rgba(255, 255, 255, 0.3);">
+                    REALKAO SHOP
+                </h1>
             </div>
         </section>
 
