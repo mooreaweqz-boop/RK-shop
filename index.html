@@ -19,6 +19,7 @@
             padding: 0;
             font-family: 'Prompt', sans-serif;
             min-height: 100vh;
+            overflow-x: hidden;
         }
         
         .font-cute {
@@ -98,9 +99,9 @@
     <!-- Container หลัก -->
     <div class="max-w-md mx-auto bg-black/60 backdrop-blur-sm min-h-screen relative pb-24 shadow-[0_0_40px_rgba(239,68,68,0.15)] border-x border-red-900/50">
 
-        <!-- 1. Header (เมนู + ค้นหา) -->
+        <!-- 1. Header -->
         <header class="flex justify-between items-center px-4 py-4 sticky top-0 z-10 bg-black/90 backdrop-blur-lg border-b border-red-900/50">
-            <button class="text-red-500 text-2xl border border-red-900/50 rounded-lg px-3 py-1 bg-red-950/30">
+            <button onclick="openMenu()" class="text-red-500 text-2xl border border-red-900/50 rounded-lg px-3 py-1 bg-red-950/30 hover:bg-red-900/50 transition">
                 <i class="fa-solid fa-bars"></i>
             </button>
             <div class="relative w-48">
@@ -120,111 +121,155 @@
             </div>
         </section>
 
-        <!-- 3. หมวดหมู่สินค้า -->
-        <section class="px-4 mt-5 mb-2 flex gap-2 overflow-x-auto no-scrollbar py-1">
-            <button class="whitespace-nowrap bg-red-950/50 border border-red-900/80 text-red-400 px-4 py-1.5 rounded-xl text-sm font-medium shadow-[0_0_10px_rgba(239,68,68,0.2)]">ประกาศ</button>
-            <button class="whitespace-nowrap bg-black/50 border border-red-900/40 text-red-500/80 px-4 py-1.5 rounded-xl text-sm font-medium hover:bg-red-950/30">ประกาศ</button>
-            <button class="whitespace-nowrap bg-black/50 border border-red-900/40 text-red-500/80 px-4 py-1.5 rounded-xl text-sm font-medium hover:bg-red-950/30">ประกาศ</button>
-        </section>
-        
-        <div class="px-4 mt-2"><hr class="border-red-900/30"></div>
+        <!-- ======================= ส่วนของ "หน้าหลัก" ======================= -->
+        <div id="page-home" class="block">
+            <section class="px-4 mt-5 mb-2 flex gap-2 overflow-x-auto no-scrollbar py-1">
+                <button class="whitespace-nowrap bg-red-950/50 border border-red-900/80 text-red-400 px-4 py-1.5 rounded-xl text-sm font-medium shadow-[0_0_10px_rgba(239,68,68,0.2)]">ประกาศ</button>
+                <button class="whitespace-nowrap bg-black/50 border border-red-900/40 text-red-500/80 px-4 py-1.5 rounded-xl text-sm font-medium hover:bg-red-950/30">ประกาศ</button>
+            </section>
+            
+            <div class="px-4 mt-2"><hr class="border-red-900/30"></div>
 
-        <!-- 4. หน้าแรก: รายการสินค้า -->
-        <section class="px-4 mt-6">
-            <div class="bg-[#080808] border-[3px] border-gray-200 rounded-[35px] p-2 relative shadow-[0_0_25px_rgba(239,68,68,0.25)]">
-                
-                <!-- รูปสินค้า (อัปเดตเป็นลิงก์ IMG_1880.png แล้ว) -->
-                <img src="https://cdn.discordapp.com/attachments/1528247158069792863/1528249908845351042/IMG_1880.png?ex=6a5d9d23&is=6a5c4ba3&hm=1258cef0d3504e6bfe263a18198e3ae78fd2238c6bd69536c54b77deba2388a1&" 
-                     alt="Proxy-Realpooh Product" 
-                     class="w-full rounded-[28px] object-cover border border-red-900/30">
-                
-                <!-- รายละเอียดการ์ด -->
-                <div class="px-3 py-4 relative z-10">
-                    <div class="flex items-center gap-2 mb-2 pl-1">
-                        <span class="text-white text-2xl leading-none">•</span>
-                        <span class="text-xl">🛒</span>
-                        <h3 class="text-white text-2xl font-semibold tracking-wide">Proxy-Realpooh</h3>
-                    </div>
+            <section class="px-4 mt-6">
+                <div class="bg-[#080808] border-[3px] border-gray-200 rounded-[35px] p-2 relative shadow-[0_0_25px_rgba(239,68,68,0.25)]">
+                    <img src="https://cdn.discordapp.com/attachments/1528247158069792863/1528249908845351042/IMG_1880.png?ex=6a5d9d23&is=6a5c4ba3&hm=1258cef0d3504e6bfe263a18198e3ae78fd2238c6bd69536c54b77deba2388a1&" 
+                         alt="Proxy-Realpooh" class="w-full rounded-[28px] object-cover border border-red-900/30">
                     
-                    <div class="text-center mt-3 mb-5">
-                        <span class="text-[#ff9999] text-xl font-medium">เริ่มต้น</span>
-                        <span class="text-white text-[32px] font-bold mx-3">10</span>
-                        <span class="text-gray-300 text-xl font-medium">฿</span>
-                    </div>
-                    
-                    <button onclick="openOrderModal()" class="w-full bg-gradient-to-b from-[#ff3333] to-[#550000] text-white font-semibold text-2xl py-3.5 rounded-3xl hover:scale-[1.02] transform transition shadow-[0_5px_20px_rgba(239,68,68,0.5)] mb-5 border border-red-500/50">
-                        สั่งซื้อสินค้า
-                    </button>
-                    
-                    <div class="flex justify-center items-center gap-2 text-white text-[1.35rem] font-medium pb-2">
-                        <i class="fa-solid fa-box-archive text-gray-300"></i>
-                        <span>คงเหลือ 41 ชิ้น</span>
+                    <div class="px-3 py-4 relative z-10">
+                        <div class="flex items-center gap-2 mb-2 pl-1">
+                            <span class="text-white text-2xl leading-none">•</span><span class="text-xl">🛒</span>
+                            <h3 class="text-white text-2xl font-semibold tracking-wide">Proxy-Realpooh</h3>
+                        </div>
+                        <div class="text-center mt-3 mb-5">
+                            <span class="text-[#ff9999] text-xl font-medium">เริ่มต้น</span>
+                            <span class="text-white text-[32px] font-bold mx-3">10</span>
+                            <span class="text-gray-300 text-xl font-medium">฿</span>
+                        </div>
+                        <button onclick="openOrderModal()" class="w-full bg-gradient-to-b from-[#ff3333] to-[#550000] text-white font-semibold text-2xl py-3.5 rounded-3xl hover:scale-[1.02] transform transition shadow-[0_5px_20px_rgba(239,68,68,0.5)] mb-5 border border-red-500/50">
+                            สั่งซื้อสินค้า
+                        </button>
+                        <div class="flex justify-center items-center gap-2 text-white text-[1.35rem] font-medium pb-2">
+                            <i class="fa-solid fa-box-archive text-gray-300"></i><span>คงเหลือ 41 ชิ้น</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </div>
 
-        <!-- 5. หน้าต่างป๊อปอัปเลือกวัน (Modal) -->
-        <div id="orderModal" class="hidden fixed inset-0 z-50 flex items-end justify-center bg-black/80 backdrop-blur-sm p-4">
-            <div class="bg-[#050505] border border-red-500/40 rounded-3xl w-full max-w-md p-4 shadow-[0_0_30px_rgba(239,68,68,0.4)] overflow-y-auto max-h-[95vh] no-scrollbar">
+        <!-- ======================= ส่วนของ "หน้าเติมเงิน" ======================= -->
+        <div id="page-topup" class="hidden px-4 mt-6">
+            <div class="bg-[#080808] border-[3px] border-gray-200 rounded-[35px] p-5 relative shadow-[0_0_25px_rgba(239,68,68,0.25)]">
+                <h2 class="text-2xl font-bold text-white mb-5 text-center flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-wallet text-red-500"></i> เติมเงินเข้าระบบ
+                </h2>
                 
-                <!-- หัวข้อป๊อปอัป + ปุ่มปิด -->
+                <div class="bg-[#111] border border-red-900/50 rounded-3xl p-5 mb-5 relative text-center shadow-[inset_0_0_15px_rgba(239,68,68,0.1)]">
+                    <div class="inline-block bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full mb-3">TrueMoney Wallet</div>
+                    <p class="text-gray-400 text-sm mb-2">ชื่อบัญชี: สราวุฒิ ทองนาค</p>
+                    <div class="flex items-center justify-center gap-4">
+                        <h3 class="text-[32px] font-bold text-white tracking-widest" id="tm-number">099-999-9999</h3>
+                        <button onclick="copyNumber()" class="bg-red-950/60 text-red-400 border border-red-900/50 hover:text-white hover:bg-red-600 p-2.5 rounded-xl transition shadow-[0_0_10px_rgba(239,68,68,0.3)]">
+                            <i class="fa-regular fa-copy text-xl"></i>
+                        </button>
+                    </div>
+                    <p id="copy-status" class="text-green-400 text-sm mt-3 font-medium opacity-0 transition-opacity duration-300"><i class="fa-solid fa-check mr-1"></i>คัดลอกเบอร์สำเร็จ!</p>
+                </div>
+
+                <div class="my-6 border-t border-red-900/30 w-4/5 mx-auto"></div>
+
+                <div class="text-center mb-4 animate-bounce">
+                    <h3 class="text-red-400 font-medium text-lg"><i class="fa-solid fa-arrow-down mr-2"></i>โอนแล้วเช็คสลิปด้านล่างเลย</h3>
+                </div>
+                
+                <div class="border-2 border-dashed border-red-900/60 bg-[#0d0505] rounded-3xl p-6 mb-3 relative group hover:border-red-500/80 hover:bg-[#150505] transition cursor-pointer overflow-hidden min-h-[160px] flex items-center justify-center">
+                    <input type="file" id="slip-upload" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" onchange="previewSlip(this)">
+                    <div id="upload-placeholder" class="text-gray-500 group-hover:text-red-400 transition flex flex-col items-center">
+                        <i class="fa-solid fa-cloud-arrow-up text-5xl mb-3"></i>
+                        <span class="text-sm font-medium">คลิกเพื่อเลือกรูปภาพสลิปจากเครื่อง</span>
+                    </div>
+                    <img id="slip-preview" src="" alt="Slip Preview" class="hidden w-full h-full object-contain rounded-xl absolute inset-0 p-2 bg-black/50 backdrop-blur-sm z-0">
+                </div>
+                
+                <p class="text-xs text-gray-400 text-center mb-6 mt-4">
+                    <i class="fa-solid fa-shield-halved mr-1 text-green-500"></i> ตรวจสอบสแกน QR Code และชื่อผู้รับเงินอัตโนมัติ
+                </p>
+
+                <!-- ปุ่มกดตรวจสอบสลิป -->
+                <button id="check-slip-btn" onclick="checkSlip()" class="w-full bg-gradient-to-b from-[#ff3333] to-[#550000] text-white font-semibold text-2xl py-3.5 rounded-3xl hover:scale-[1.02] transform transition shadow-[0_5px_20px_rgba(239,68,68,0.5)] border border-red-500/50 disabled:opacity-70 disabled:cursor-not-allowed">
+                    <i class="fa-solid fa-magnifying-glass mr-2"></i>ตรวจสลิป
+                </button>
+            </div>
+        </div>
+
+        <!-- ======================= ป๊อปอัปแจ้งผลตรวจสลิป ======================= -->
+        <div id="slipResultModal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
+            <div class="bg-[#0a0a0a] border border-green-500/50 rounded-3xl w-full max-w-sm p-6 shadow-[0_0_40px_rgba(34,197,94,0.3)] text-center transform scale-100 transition-transform">
+                
+                <div class="w-20 h-20 bg-green-900/40 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-500 shadow-[0_0_20px_rgba(34,197,94,0.5)]">
+                    <i class="fa-solid fa-check text-4xl text-green-500"></i>
+                </div>
+                
+                <h2 class="text-2xl font-bold text-white mb-2">สลิปถูกต้องแท้ 100%</h2>
+                <p class="text-gray-400 text-sm mb-4">ระบบได้ทำการตรวจสอบ QR Code เรียบร้อยแล้ว</p>
+                
+                <div class="bg-[#111] border border-gray-800 rounded-xl p-4 text-left mb-6">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-500 text-sm">ผู้รับเงิน :</span>
+                        <span class="text-green-400 text-sm font-medium">สราวุฒิ ทองนาค</span>
+                    </div>
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-500 text-sm">ยอดเงิน :</span>
+                        <span class="text-white text-sm font-bold">100.00 ฿</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-gray-500 text-sm">สถานะ :</span>
+                        <span class="text-white text-sm bg-green-600/30 text-green-400 px-2 py-0.5 rounded">สำเร็จ</span>
+                    </div>
+                </div>
+
+                <button onclick="closeSlipResult()" class="w-full bg-green-600 hover:bg-green-500 text-white font-semibold text-lg py-3 rounded-xl transition">
+                    ตกลง
+                </button>
+            </div>
+        </div>
+
+        <!-- หน้าต่างป๊อปอัปเลือกวัน (Modal ของหน้าหลัก) -->
+        <div id="orderModal" class="hidden fixed inset-0 z-[60] flex items-end justify-center bg-black/80 backdrop-blur-sm p-4">
+            <div class="bg-[#050505] border border-red-500/40 rounded-3xl w-full max-w-md p-4 shadow-[0_0_30px_rgba(239,68,68,0.4)] overflow-y-auto max-h-[95vh] no-scrollbar">
                 <div class="flex justify-between items-center mb-4 border-b border-red-900/30 pb-2">
                     <h2 class="text-xl font-bold text-white flex items-center gap-2">🛒 สั่งซื้อ Proxy-Realpooh</h2>
                     <button onclick="closeOrderModal()" class="text-gray-400 hover:text-red-500 text-2xl px-2"><i class="fa-solid fa-xmark"></i></button>
                 </div>
-
-                <!-- รูปสินค้าขนาดเล็กในป๊อปอัป (อัปเดตเป็นลิงก์ IMG_1880.png แล้ว) -->
-                <div class="mb-4 rounded-xl overflow-hidden border border-red-900/30">
-                    <img src="https://cdn.discordapp.com/attachments/1528247158069792863/1528249908845351042/IMG_1880.png?ex=6a5d9d23&is=6a5c4ba3&hm=1258cef0d3504e6bfe263a18198e3ae78fd2238c6bd69536c54b77deba2388a1&" 
-                         alt="Product Mini" 
-                         class="w-full h-32 object-cover">
+                <!-- ปุ่มเลือกวัน (จำลองมาให้ 1 วัน) -->
+                <button class="w-full flex justify-between items-center bg-red-950/40 border-2 border-red-600 text-white px-4 py-3 rounded-xl">
+                    <span class="font-medium text-sm"><i class="fa-regular fa-clock mr-2 text-red-400"></i>แพ็กเกจ 1 วัน</span>
+                    <span class="text-red-400 font-bold text-base">10 ฿</span>
+                </button>
+                <div class="mt-5 pt-3 border-t border-red-900/20 bg-gradient-to-b from-[#110505]/40 to-black p-3 rounded-xl text-center">
+                    <h3 class="text-2xl font-bold text-white mb-3">10 <span class="text-lg text-red-500">฿</span></h3>
+                    <button class="w-full bg-gradient-to-b from-[#ff3333] to-[#660000] text-white font-semibold text-lg py-3 rounded-xl shadow-[0_4px_15px_rgba(239,68,68,0.4)] border border-red-500/40">ยืนยันสั่งซื้อ (1 วัน)</button>
                 </div>
-
-                <!-- เลือกวัน -->
-                <p class="text-xs text-red-500 mb-3 font-light"><i class="fa-solid fa-circle-info mr-1"></i>โปรดเลือกประเภทแพ็กเกจจำนวนวันที่ต้องการใช้งาน</p>
-                
-                <div class="space-y-2">
-                    <!-- 1 วัน -->
-                    <button onclick="selectPackage(1, 10)" id="pkg-1" class="w-full flex justify-between items-center bg-red-950/40 border-2 border-red-600 text-white px-4 py-3 rounded-xl transition">
-                        <span class="font-medium text-sm"><i class="fa-regular fa-clock mr-2 text-red-400"></i>แพ็กเกจ 1 วัน</span>
-                        <span class="text-red-400 font-bold text-base">10 ฿</span>
-                    </button>
-                    <!-- 3 วัน -->
-                    <button onclick="selectPackage(3, 25)" id="pkg-3" class="w-full flex justify-between items-center bg-[#111] border border-red-900/30 text-gray-300 px-4 py-3 rounded-xl transition">
-                        <span class="font-medium text-sm"><i class="fa-regular fa-clock mr-2 text-gray-500"></i>แพ็กเกจ 3 วัน</span>
-                        <span class="text-gray-400 font-bold text-base">25 ฿</span>
-                    </button>
-                    <!-- 7 วัน -->
-                    <button onclick="selectPackage(7, 65)" id="pkg-7" class="w-full flex justify-between items-center bg-[#111] border border-red-900/30 text-gray-300 px-4 py-3 rounded-xl transition">
-                        <span class="font-medium text-sm"><i class="fa-regular fa-clock mr-2 text-gray-500"></i>แพ็กเกจ 7 วัน</span>
-                        <span class="text-gray-400 font-bold text-base">65 ฿</span>
-                    </button>
-                    <!-- 15 วัน -->
-                    <button onclick="selectPackage(15, 100)" id="pkg-15" class="w-full flex justify-between items-center bg-[#111] border border-red-900/30 text-gray-300 px-4 py-3 rounded-xl transition">
-                        <span class="font-medium text-sm"><i class="fa-regular fa-clock mr-2 text-gray-500"></i>แพ็กเกจ 15 วัน</span>
-                        <span class="text-gray-400 font-bold text-base">100 ฿</span>
-                    </button>
-                    <!-- 30 วัน -->
-                    <button onclick="selectPackage(30, 150)" id="pkg-30" class="w-full flex justify-between items-center bg-[#111] border border-red-900/30 text-gray-300 px-4 py-3 rounded-xl transition">
-                        <span class="font-medium text-sm"><i class="fa-regular fa-clock mr-2 text-gray-500"></i>แพ็กเกจ 30 วัน</span>
-                        <span class="text-gray-400 font-bold text-base">150 ฿</span>
-                    </button>
-                </div>
-
-                <!-- สรุปและยืนยันการสั่งซื้อ -->
-                <div class="mt-5 pt-3 border-t border-red-900/20 bg-gradient-to-b from-[#110505]/40 to-black p-3 rounded-xl">
-                    <div class="text-center mb-3">
-                        <p class="text-xs text-gray-400">ยอดชำระเงินทั้งหมด</p>
-                        <h3 class="text-2xl font-bold text-white mt-0.5"><span id="total-price">10</span> <span class="text-lg text-red-500">฿</span></h3>
-                    </div>
-
-                    <button class="w-full bg-gradient-to-b from-[#ff3333] to-[#660000] text-white font-semibold text-lg py-3 rounded-xl shadow-[0_4px_15px_rgba(239,68,68,0.4)] border border-red-500/40">
-                        ยืนยันสั่งซื้อ (<span id="btn-day">1</span> วัน)
-                    </button>
-                </div>
-
             </div>
+        </div>
+
+        <!-- 6. เมนูด้านข้าง (Sidebar Menu) -->
+        <div id="sidebarMenu" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm transition-opacity duration-300">
+            <div id="sidebarContent" class="fixed top-0 left-0 w-3/4 max-w-[280px] h-full bg-[#0a0a0a] border-r border-red-900/50 shadow-2xl p-6 transform -translate-x-full transition-transform duration-300 ease-in-out">
+                <div class="flex items-center justify-center mb-10 relative">
+                    <div class="absolute inset-x-0 top-1/2 h-px bg-gray-800 -z-10"></div>
+                    <h2 class="text-xl font-medium text-white bg-[#0a0a0a] px-4">เมนู</h2>
+                    <button onclick="closeMenu()" class="absolute right-0 text-gray-400 hover:text-red-500 text-3xl bg-[#0a0a0a] pl-2 transition"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="flex flex-col space-y-8 pl-2">
+                    <a href="#" onclick="switchPage('home')" class="flex items-center gap-5 text-white hover:text-red-500 text-xl font-medium transition group">
+                        <i class="fa-solid fa-house text-[28px] text-gray-400 w-8 text-center group-hover:text-red-500 transition"></i>หน้าหลัก
+                    </a>
+                    <a href="#" onclick="switchPage('topup')" class="flex items-center gap-5 text-white hover:text-red-500 text-xl font-medium transition group">
+                        <i class="fa-solid fa-wallet text-[28px] text-gray-400 w-8 text-center group-hover:text-red-500 transition"></i>เติมเงิน
+                    </a>
+                </div>
+            </div>
+            <div class="absolute inset-0 z-[-1]" onclick="closeMenu()"></div>
         </div>
 
         <!-- ปุ่มลอยเพลง -->
@@ -234,38 +279,76 @@
 
     </div>
 
-    <!-- สคริปต์ระบบเปิดปิด และเปลี่ยนวันราคา -->
+    <!-- สคริปต์ระบบ -->
     <script>
-        function openOrderModal() {
-            document.getElementById('orderModal').classList.remove('hidden');
+        // ระบบสลับหน้า
+        function switchPage(page) {
+            document.getElementById('page-home').classList.add('hidden');
+            document.getElementById('page-topup').classList.add('hidden');
+            document.getElementById(`page-${page}`).classList.remove('hidden');
+            closeMenu();
         }
 
-        function closeOrderModal() {
-            document.getElementById('orderModal').classList.add('hidden');
-        }
-
-        function selectPackage(day, price) {
-            const days = [1, 3, 7, 15, 30];
-            days.forEach(d => {
-                const btn = document.getElementById(`pkg-${d}`);
-                if (btn) {
-                    btn.className = "w-full flex justify-between items-center bg-[#111] border border-red-900/30 text-gray-300 px-4 py-3 rounded-xl transition";
-                    btn.querySelector('i').className = "fa-regular fa-clock mr-2 text-gray-500";
-                    btn.querySelector('span:last-child').className = "text-gray-400 font-bold text-base";
-                }
+        // ระบบคัดลอกเบอร์
+        function copyNumber() {
+            navigator.clipboard.writeText("099-999-9999").then(() => {
+                const status = document.getElementById('copy-status');
+                status.classList.remove('opacity-0');
+                setTimeout(() => status.classList.add('opacity-0'), 2500);
             });
+        }
 
-            const activeBtn = document.getElementById(`pkg-${day}`);
-            if (activeBtn) {
-                activeBtn.className = "w-full flex justify-between items-center bg-red-950/40 border-2 border-red-600 text-white px-4 py-3 rounded-xl transition";
-                activeBtn.querySelector('i').className = "fa-regular fa-clock mr-2 text-red-400";
-                activeBtn.querySelector('span:last-child').className = "text-red-400 font-bold text-base";
+        // ระบบพรีวิวรูปสลิป
+        function previewSlip(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('upload-placeholder').classList.add('hidden');
+                    const previewImg = document.getElementById('slip-preview');
+                    previewImg.src = e.target.result;
+                    previewImg.classList.remove('hidden');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // ระบบจำลองตรวจสลิป (ตรวจสอบชื่อ สราวุฒิ ทองนาค)
+        function checkSlip() {
+            const fileInput = document.getElementById('slip-upload');
+            const btn = document.getElementById('check-slip-btn');
+
+            if (fileInput.files.length === 0) {
+                alert("❌ กรุณาอัปโหลดรูปภาพสลิปโอนเงินก่อนทำการตรวจสอบ!");
+                return;
             }
 
-            document.getElementById('total-price').innerText = price;
-            document.getElementById('btn-day').innerText = day;
-        }
-    </script>
+            // เปลี่ยนสถานะปุ่มเป็นกำลังโหลด
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i>กำลังตรวจสอบสแกน QR...';
+            btn.disabled = true;
 
+            // จำลองเวลา API ตรวจสอบ 2 วินาที แล้วแสดงป๊อปอัปแจ้งผล
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fa-solid fa-magnifying-glass mr-2"></i>ตรวจสลิป';
+                btn.disabled = false;
+                document.getElementById('slipResultModal').classList.remove('hidden');
+            }, 2000);
+        }
+
+        function closeSlipResult() {
+            document.getElementById('slipResultModal').classList.add('hidden');
+        }
+
+        // เมนู & Modal สั่งซื้อ
+        function openMenu() {
+            document.getElementById('sidebarMenu').classList.remove('hidden');
+            setTimeout(() => document.getElementById('sidebarContent').classList.remove('-translate-x-full'), 10);
+        }
+        function closeMenu() {
+            document.getElementById('sidebarContent').classList.add('-translate-x-full');
+            setTimeout(() => document.getElementById('sidebarMenu').classList.add('hidden'), 300);
+        }
+        function openOrderModal() { document.getElementById('orderModal').classList.remove('hidden'); }
+        function closeOrderModal() { document.getElementById('orderModal').classList.add('hidden'); }
+    </script>
 </body>
 </html>
