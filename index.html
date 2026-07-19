@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Itim&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         html, body { background-color: #000000 !important; color: #e5e5e5; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; min-height: 100vh; overflow-x: hidden; }
         .font-cute { font-family: 'Itim', cursive; }
@@ -19,8 +19,9 @@
         .glow-red-box::after { content: ''; position: absolute; top: 0; left: -150%; width: 50%; height: 100%; background: linear-gradient(to right, transparent, rgba(239, 68, 68, 0.6), transparent); transform: skewX(-25deg); animation: laserSwipe 3s infinite ease-in-out; z-index: 1; }
         @keyframes pulseGlow { 0% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.3); border-color: #991b1b; } 100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.8); border-color: #ef4444; } }
         @keyframes laserSwipe { 0% { left: -150%; } 50% { left: 150%; } 100% { left: 150%; } }
-        .music-btn { animation: floatMusic 3s ease-in-out infinite; }
-        @keyframes floatMusic { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-8px); } }
+        .pkg-btn.active { background: linear-gradient(to bottom, #ff3333, #7a0000) !important; border: 1px solid #ff6666; }
+        .spinner { border: 3px solid rgba(239,68,68,0.2); border-top-color: #ef4444; border-radius: 50%; width: 20px; height: 20px; animation: spin 0.7s linear infinite; display: inline-block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="bg-black">
@@ -63,6 +64,10 @@
 
         <!-- Page Topup -->
         <div id="page-topup" class="hidden px-4 mt-6">
+
+            <!-- current order summary -->
+            <div id="order-summary" class="hidden bg-red-950/40 border border-red-700/50 rounded-2xl p-4 mb-4 text-sm text-gray-200"></div>
+
             <div class="bg-[#080808] border-[3px] border-gray-200 rounded-[35px] p-5 text-center">
                 <h2 class="text-2xl font-bold text-white mb-5">เติมเงินเข้าระบบ</h2>
                 <div class="bg-[#111] border border-red-900/50 rounded-3xl p-5 mb-5">
@@ -77,7 +82,10 @@
                     <img id="slip-preview" class="hidden mt-4 w-full rounded-xl">
                 </div>
                 <div class="bg-red-950/40 p-3 rounded-xl mb-5 text-xs text-red-400">คำเตือน: ถ้าไม่ใช่บัญชี TrueMoney และชื่อไม่ใช่ "สราวุฒิ ทองนาค" เงินจะไม่เข้า!</div>
-                <button id="check-slip-btn" onclick="checkSlip()" class="w-full bg-red-600 text-white py-3 rounded-2xl">ตรวจสลิป</button>
+                <button id="check-slip-btn" onclick="checkSlip()" class="w-full bg-red-600 text-white py-3 rounded-2xl flex items-center justify-center gap-2">
+                    <span id="check-slip-label">ตรวจสลิป</span>
+                </button>
+                <div id="slip-result" class="mt-4 text-left text-sm rounded-2xl p-4 hidden"></div>
             </div>
         </div>
 
@@ -86,13 +94,16 @@
             <div class="bg-[#050505] border border-red-500/40 rounded-3xl w-full max-w-md p-4">
                 <button onclick="closeOrderModal()" class="text-white text-2xl mb-4"><i class="fa-solid fa-xmark"></i></button>
                 <div class="space-y-2">
-                    <button onclick="selectPackage(1, 10)" id="pkg-1" class="w-full flex justify-between bg-red-900 p-3 rounded-xl"><span>1 วัน</span><span>10 ฿</span></button>
-                    <button onclick="selectPackage(3, 25)" id="pkg-3" class="w-full flex justify-between bg-[#111] p-3 rounded-xl"><span>3 วัน</span><span>25 ฿</span></button>
-                    <button onclick="selectPackage(7, 65)" id="pkg-7" class="w-full flex justify-between bg-[#111] p-3 rounded-xl"><span>7 วัน</span><span>65 ฿</span></button>
-                    <button onclick="selectPackage(15, 100)" id="pkg-15" class="w-full flex justify-between bg-[#111] p-3 rounded-xl"><span>15 วัน</span><span>100 ฿</span></button>
-                    <button onclick="selectPackage(30, 150)" id="pkg-30" class="w-full flex justify-between bg-[#111] p-3 rounded-xl"><span>30 วัน</span><span>150 ฿</span></button>
+                    <button onclick="selectPackage(1, 10)" id="pkg-1" class="pkg-btn w-full flex justify-between bg-[#111] p-3 rounded-xl"><span>1 วัน</span><span>10 ฿</span></button>
+                    <button onclick="selectPackage(3, 25)" id="pkg-3" class="pkg-btn w-full flex justify-between bg-[#111] p-3 rounded-xl"><span>3 วัน</span><span>25 ฿</span></button>
+                    <button onclick="selectPackage(7, 65)" id="pkg-7" class="pkg-btn w-full flex justify-between bg-[#111] p-3 rounded-xl"><span>7 วัน</span><span>65 ฿</span></button>
+                    <button onclick="selectPackage(15, 100)" id="pkg-15" class="pkg-btn w-full flex justify-between bg-[#111] p-3 rounded-xl"><span>15 วัน</span><span>100 ฿</span></button>
+                    <button onclick="selectPackage(30, 150)" id="pkg-30" class="pkg-btn w-full flex justify-between bg-[#111] p-3 rounded-xl"><span>30 วัน</span><span>150 ฿</span></button>
                 </div>
-                <button class="w-full mt-4 bg-red-600 py-3 rounded-xl">ยืนยันสั่งซื้อ</button>
+                <div id="order-selected-info" class="text-center text-sm text-gray-400 mt-3 hidden">
+                    เลือกแล้ว: <span id="order-selected-text" class="text-white font-semibold"></span>
+                </div>
+                <button id="confirm-order-btn" onclick="confirmOrder()" class="w-full mt-4 bg-red-600 py-3 rounded-xl opacity-50" disabled>ยืนยันสั่งซื้อ</button>
             </div>
         </div>
 
@@ -108,6 +119,7 @@
     </div>
 
     <script>
+        // ---------- navigation ----------
         function switchPage(page) {
             document.getElementById('page-home').classList.toggle('hidden', page !== 'home');
             document.getElementById('page-topup').classList.toggle('hidden', page !== 'topup');
@@ -118,8 +130,176 @@
         function openOrderModal() { document.getElementById('orderModal').classList.remove('hidden'); }
         function closeOrderModal() { document.getElementById('orderModal').classList.add('hidden'); }
         function copyNumber() { navigator.clipboard.writeText("0988785068"); document.getElementById('copy-status').classList.remove('opacity-0'); }
-        function previewSlip(input) { if (input.files && input.files[0]) { const r = new FileReader(); r.onload = (e) => { const p = document.getElementById('slip-preview'); p.src = e.target.result; p.classList.remove('hidden'); }; r.readAsDataURL(input.files[0]); } }
-        function checkSlip() { alert("กำลังตรวจสอบกับชื่อ สราวุฒิ ทองนาค..."); }
+
+        // ---------- order flow (in-memory, no localStorage) ----------
+        let selectedPackage = null; // {days, price}
+        let currentOrder = null;    // {days, price, orderId, status}
+
+        function selectPackage(days, price) {
+            selectedPackage = { days, price };
+            document.querySelectorAll('.pkg-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('pkg-' + days).classList.add('active');
+
+            const infoBox = document.getElementById('order-selected-info');
+            infoBox.classList.remove('hidden');
+            document.getElementById('order-selected-text').textContent = days + ' วัน — ' + price + ' ฿';
+
+            const confirmBtn = document.getElementById('confirm-order-btn');
+            confirmBtn.disabled = false;
+            confirmBtn.classList.remove('opacity-50');
+        }
+
+        function generateOrderId() {
+            return 'RK' + Date.now().toString().slice(-6) + Math.floor(Math.random() * 90 + 10);
+        }
+
+        function confirmOrder() {
+            if (!selectedPackage) {
+                alert('กรุณาเลือกแพ็กเกจก่อนสั่งซื้อ');
+                return;
+            }
+            currentOrder = {
+                days: selectedPackage.days,
+                price: selectedPackage.price,
+                orderId: generateOrderId(),
+                status: 'รอชำระเงิน'
+            };
+            renderOrderSummary();
+            closeOrderModal();
+            switchPage('topup');
+        }
+
+        function renderOrderSummary() {
+            const box = document.getElementById('order-summary');
+            if (!currentOrder) { box.classList.add('hidden'); return; }
+            box.classList.remove('hidden');
+            box.innerHTML =
+                '<div class="flex justify-between mb-1"><span>เลขคำสั่งซื้อ</span><span class="font-semibold text-white">#' + currentOrder.orderId + '</span></div>' +
+                '<div class="flex justify-between mb-1"><span>แพ็กเกจ</span><span class="text-white">' + currentOrder.days + ' วัน</span></div>' +
+                '<div class="flex justify-between mb-1"><span>ยอดที่ต้องโอน</span><span class="text-red-400 font-bold">' + currentOrder.price + ' ฿</span></div>' +
+                '<div class="flex justify-between"><span>สถานะ</span><span id="order-status-text" class="text-yellow-400">' + currentOrder.status + '</span></div>';
+        }
+
+        // ---------- slip upload / verification ----------
+        let slipBase64 = null;
+        let slipMediaType = null;
+
+        function previewSlip(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                slipMediaType = file.type || 'image/jpeg';
+                const r = new FileReader();
+                r.onload = (e) => {
+                    const dataUrl = e.target.result;
+                    slipBase64 = dataUrl.split(',')[1];
+                    const p = document.getElementById('slip-preview');
+                    p.src = dataUrl;
+                    p.classList.remove('hidden');
+                    document.getElementById('slip-result').classList.add('hidden');
+                };
+                r.readAsDataURL(file);
+            }
+        }
+
+        async function checkSlip() {
+            const resultBox = document.getElementById('slip-result');
+            const btn = document.getElementById('check-slip-btn');
+            const label = document.getElementById('check-slip-label');
+
+            if (!slipBase64) {
+                alert('กรุณาเลือกรูปสลิปก่อน');
+                return;
+            }
+
+            btn.disabled = true;
+            label.innerHTML = '<span class="spinner"></span> กำลังตรวจสอบ...';
+            resultBox.classList.add('hidden');
+
+            const expectedName = 'สราวุฒิ ทองนาค';
+            const expectedAmount = currentOrder ? currentOrder.price : null;
+
+            const prompt =
+                'นี่คือรูปสลิปการโอนเงิน/เติมเงิน จงอ่านรายละเอียดในรูปแล้วตอบกลับเป็น JSON เท่านั้น ห้ามมีข้อความอื่นนอกเหนือจาก JSON ห้ามใช้ markdown code fence\n' +
+                'โครงสร้าง JSON ที่ต้องการ:\n' +
+                '{\n' +
+                '  "readable": true/false,\n' +
+                '  "channel": "ช่องทางที่พบในสลิป เช่น TrueMoney Wallet, ธนาคาร X, หรือ ไม่ทราบ",\n' +
+                '  "receiver_name_found": "ชื่อผู้รับที่อ่านได้จากสลิป หรือ null ถ้าไม่พบ",\n' +
+                '  "amount_found": ตัวเลขจำนวนเงินที่อ่านได้ หรือ null,\n' +
+                '  "name_matches_expected": true/false (เทียบกับชื่อ "' + expectedName + '"),\n' +
+                '  "is_truemoney": true/false,\n' +
+                '  "suspicious_signs": ["รายการข้อสังเกตที่ดูผิดปกติ เช่น ฟอนต์ไม่สม่ำเสมอ ร่องรอยตัดต่อ องค์ประกอบไม่ตรงรูปแบบแอปจริง ฯลฯ (ถ้าไม่มีให้เป็น array ว่าง)"]\n' +
+                '}\n' +
+                (expectedAmount ? ('ยอดเงินที่คาดว่าจะได้รับคือ ' + expectedAmount + ' บาท ให้ใส่ผลเทียบใน suspicious_signs ถ้ายอดไม่ตรง\n') : '');
+
+            try {
+                const response = await fetch("https://api.anthropic.com/v1/messages", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        model: "claude-sonnet-4-6",
+                        max_tokens: 1000,
+                        messages: [
+                            {
+                                role: "user",
+                                content: [
+                                    { type: "image", source: { type: "base64", media_type: slipMediaType, data: slipBase64 } },
+                                    { type: "text", text: prompt }
+                                ]
+                            }
+                        ]
+                    })
+                });
+
+                const data = await response.json();
+                const rawText = (data.content || []).map(b => b.text || '').join('').trim();
+                const cleaned = rawText.replace(/```json|```/g, '').trim();
+                const parsed = JSON.parse(cleaned);
+
+                renderSlipResult(parsed, expectedAmount);
+            } catch (err) {
+                console.error(err);
+                resultBox.classList.remove('hidden');
+                resultBox.className = 'mt-4 text-left text-sm rounded-2xl p-4 bg-yellow-950/40 border border-yellow-700/50 text-yellow-300';
+                resultBox.innerHTML = 'ไม่สามารถตรวจสอบสลิปอัตโนมัติได้ในขณะนี้ กรุณาตรวจสอบด้วยตนเองหรือลองใหม่อีกครั้ง';
+            } finally {
+                btn.disabled = false;
+                label.textContent = 'ตรวจสลิป';
+            }
+        }
+
+        function renderSlipResult(r, expectedAmount) {
+            const resultBox = document.getElementById('slip-result');
+            resultBox.classList.remove('hidden');
+
+            const amountOk = expectedAmount ? (r.amount_found === expectedAmount) : true;
+            const looksOk = r.readable && r.name_matches_expected && r.is_truemoney && amountOk && (!r.suspicious_signs || r.suspicious_signs.length === 0);
+
+            resultBox.className = 'mt-4 text-left text-sm rounded-2xl p-4 border ' +
+                (looksOk ? 'bg-green-950/40 border-green-700/50 text-green-300' : 'bg-red-950/40 border-red-700/50 text-red-300');
+
+            let html = '<div class="font-bold mb-2 text-base">' +
+                (looksOk ? 'สลิปดูสอดคล้องกับเงื่อนไข' : 'พบข้อสังเกต / อาจไม่ตรงเงื่อนไข') +
+                '</div>';
+            html += '<div>ช่องทาง: ' + (r.channel || 'ไม่ทราบ') + '</div>';
+            html += '<div>ชื่อผู้รับที่อ่านได้: ' + (r.receiver_name_found || '-') + (r.name_matches_expected ? ' ✅' : ' ❌') + '</div>';
+            if (expectedAmount) {
+                html += '<div>ยอดเงิน: ' + (r.amount_found ?? '-') + ' ฿ (ต้องการ ' + expectedAmount + ' ฿) ' + (amountOk ? '✅' : '❌') + '</div>';
+            }
+            html += '<div>บัญชี TrueMoney: ' + (r.is_truemoney ? 'ใช่ ✅' : 'ไม่ใช่/ไม่แน่ใจ ❌') + '</div>';
+            if (r.suspicious_signs && r.suspicious_signs.length > 0) {
+                html += '<div class="mt-2">ข้อสังเกต:<ul class="list-disc pl-5">' +
+                    r.suspicious_signs.map(s => '<li>' + s + '</li>').join('') + '</ul></div>';
+            }
+            html += '<div class="mt-2 text-xs opacity-70">การตรวจสอบนี้อ่านข้อมูลจากภาพเท่านั้น ไม่สามารถยืนยันได้ 100% ว่ารายการเงินเข้าจริงในระบบธนาคาร แนะนำให้ผู้ดูแลระบบตรวจสอบยอดเงินจริงในบัญชีอีกครั้งก่อนส่งมอบสินค้า</div>';
+
+            resultBox.innerHTML = html;
+
+            if (looksOk && currentOrder) {
+                currentOrder.status = 'ชำระเงินแล้ว (รอตรวจสอบยอดจริง)';
+                renderOrderSummary();
+            }
+        }
     </script>
 </body>
 </html>
