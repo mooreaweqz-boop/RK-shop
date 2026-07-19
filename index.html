@@ -28,6 +28,10 @@
 
     <div class="cyber-bg"></div>
 
+    <div id="storage-warning" class="hidden max-w-md mx-auto bg-yellow-950 border border-yellow-600 text-yellow-300 text-xs p-3 text-center sticky top-0 z-[80]">
+        ⚠️ ระบบบันทึกข้อมูลถาวรใช้งานไม่ได้ในขณะนี้ สต็อกและยอดคงเหลือที่แก้ไขจะ<strong>หายเมื่อรีเฟรชหน้า</strong> — ต้องเปิดไฟล์นี้อยู่ในหน้าต่าง Artifact ของ Claude เท่านั้น (ไม่ใช่ไฟล์ที่ดาวน์โหลดไปเปิดเอง)
+    </div>
+
     <div class="max-w-md mx-auto bg-black/60 backdrop-blur-sm min-h-screen relative pb-24 shadow-[0_0_40px_rgba(239,68,68,0.15)] border-x border-red-900/50">
 
         <!-- Header -->
@@ -199,16 +203,21 @@
                 const res = await window.storage.get(BALANCE_KEY, true);
                 userBalance = res ? (parseFloat(res.value) || 0) : 0;
             } catch (e) {
-                userBalance = 0; // ยังไม่เคยมีการบันทึกยอดมาก่อน
+                userBalance = 0; // ยังไม่เคยมีการบันทึกยอดมาก่อน (หรือระบบบันทึกใช้งานไม่ได้)
+                console.warn('loadBalance:', e);
             }
             renderBalance();
         }
 
         async function saveBalance() {
             try {
-                await window.storage.set(BALANCE_KEY, String(userBalance), true);
+                const result = await window.storage.set(BALANCE_KEY, String(userBalance), true);
+                if (!result) throw new Error('storage.set returned empty result');
+                return true;
             } catch (e) {
                 console.error('บันทึกยอดคงเหลือไม่สำเร็จ:', e);
+                showStorageWarning();
+                return false;
             }
         }
 
@@ -261,28 +270,49 @@
 
         // ---------- stock (persisted via window.storage, shared across visitors) ----------
         // key = จำนวนวันของแพ็กเกจ, value = array ของรหัส/ข้อความที่จะสุ่มแจก
-        let stock = { 1: [], 3: [], 7: [], 15: [], 30: [] };
+        // ค่าเริ่มต้นนี้จะถูกใช้เฉพาะตอนที่ยังไม่เคยมีการบันทึกสต็อกมาก่อนเท่านั้น
+        // (ถ้าเคยกดเพิ่ม/ขายสต็อกไปแล้ว ระบบจะโหลดค่าที่บันทึกไว้จริงแทนค่าเริ่มต้นนี้เสมอ)
+        let stock = {
+            1: ['pooh-1day-proxy187184145', 'pooh-1day-proxy697431954', 'pooh-1day-proxy205872220'],
+            3: ['pooh-3day-proxy553674430', 'pooh-3day-proxy063367960', 'pooh-3day-proxy540325454', 'pooh-3day-proxy322112354'],
+            7: ['pooh-7day-proxy387961102', 'pooh-7day-proxy826096823', 'pooh-7day-proxy448095496', 'pooh-7day-proxy903130307'],
+            15: ['pooh-15day-proxy332243373', 'pooh-15day-proxy831271322', 'pooh-15day-proxy353235957', 'pooh-15day-proxy820778996'],
+            30: ['pooh-30day-proxy725299468', 'pooh-30day-proxy274856092', 'pooh-30day-proxy680030086', 'pooh-30day-proxy247128575']
+        };
         const STOCK_KEY = 'shop-stock';
 
         async function loadStock() {
             try {
                 const res = await window.storage.get(STOCK_KEY, true);
                 if (res) {
+                    // มีข้อมูลบันทึกไว้แล้ว ใช้ค่านั้นแทนค่าเริ่มต้นในโค้ด
                     const parsed = JSON.parse(res.value);
                     stock = { 1: [], 3: [], 7: [], 15: [], 30: [], ...parsed };
+                } else {
+                    // ยังไม่เคยบันทึกมาก่อน ใช้ค่าเริ่มต้นในโค้ดนี้ แล้วบันทึกลงระบบถาวรทันที
+                    await saveStock();
                 }
             } catch (e) {
-                // ยังไม่เคยมีการบันทึกสต็อกมาก่อน ใช้ค่าว่างตามค่าเริ่มต้น
+                console.warn('loadStock:', e);
             }
             renderStockSummary();
         }
 
         async function saveStock() {
             try {
-                await window.storage.set(STOCK_KEY, JSON.stringify(stock), true);
+                const result = await window.storage.set(STOCK_KEY, JSON.stringify(stock), true);
+                if (!result) throw new Error('storage.set returned empty result');
+                return true;
             } catch (e) {
                 console.error('บันทึกสต็อกไม่สำเร็จ:', e);
+                showStorageWarning();
+                return false;
             }
+        }
+
+        function showStorageWarning() {
+            const banner = document.getElementById('storage-warning');
+            if (banner) banner.classList.remove('hidden');
         }
 
         function renderStockSummary() {
@@ -296,7 +326,7 @@
                 ).join('');
         }
 
-        function adminAddStock() {
+        async function adminAddStock() {
             const days = document.getElementById('admin-stock-package').value;
             const raw = document.getElementById('admin-stock-input').value;
             const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
@@ -318,8 +348,13 @@
 
             document.getElementById('admin-stock-input').value = '';
             renderStockSummary();
-            saveStock();
-            alert('เพิ่มสต็อกสำเร็จ ' + added + ' รายการ' + (skipped > 0 ? (' (ข้ามรายการซ้ำ ' + skipped + ' รายการ)') : ''));
+            const saved = await saveStock();
+
+            if (!saved) {
+                alert('⚠️ เพิ่มสต็อก ' + added + ' รายการในหน้านี้แล้ว แต่บันทึกถาวรไม่สำเร็จ — ถ้ารีเฟรชหน้าตอนนี้ ข้อมูลจะหายไป กรุณาเปิดไฟล์นี้อยู่ในหน้าต่าง Artifact ของ Claude แล้วลองใหม่');
+                return;
+            }
+            alert('เพิ่มสต็อกสำเร็จ ' + added + ' รายการ' + (skipped > 0 ? (' (ข้ามรายการซ้ำ ' + skipped + ' รายการ)') : '') + ' — บันทึกถาวรแล้ว');
         }
 
         // สุ่มดึง 1 รายการออกจากสต็อกของแพ็กเกจนั้นๆ แบบไม่ซ้ำ (ลบออกจาก pool ทันที)
@@ -579,6 +614,9 @@
 
         // ---------- init ----------
         async function initShop() {
+            if (typeof window.storage === 'undefined') {
+                showStorageWarning();
+            }
             await Promise.all([loadBalance(), loadStock()]);
         }
         initShop();
